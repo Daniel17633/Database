@@ -1,0 +1,36 @@
+DROP TABLE IF EXISTS Order_Product;
+DROP TABLE IF EXISTS OrderTable;
+DROP TABLE IF EXISTS Product;
+DROP TABLE IF EXISTS Customer;
+
+-- Таблица для сущности "Клиент" (Customer)
+CREATE TABLE Customer (
+    CustomerID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Name TEXT NOT NULL,
+    Email TEXT NOT NULL UNIQUE
+);
+
+-- Таблица для сущности "Заказ" (Order)
+CREATE TABLE OrderTable (
+    OrderID INTEGER PRIMARY KEY AUTOINCREMENT,
+    OrderDate TEXT NOT NULL,  
+    CustomerID INTEGER NOT NULL,
+    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID)
+);
+
+-- Таблица для сущности "Товар" (Product)
+CREATE TABLE Product (
+    ProductID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Name TEXT NOT NULL,
+    Price REAL NOT NULL 
+);
+
+-- Связующая таблица для связи M:N между "Заказ" и "Товар" (Order_Product)
+CREATE TABLE Order_Product (
+    OrderID INTEGER NOT NULL,
+    ProductID INTEGER NOT NULL,
+    Quantity INTEGER NOT NULL,
+    PRIMARY KEY (OrderID, ProductID),
+    FOREIGN KEY (OrderID) REFERENCES OrderTable(OrderID),
+    FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
+);
