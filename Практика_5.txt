@@ -32,4 +32,5 @@ CREATE TABLE Temp_Table (
     temp_column TEXT
 );
 
+
 DROP TABLE Temp_Table;
