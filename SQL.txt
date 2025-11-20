@@ -1,0 +1,35 @@
+-- Создание начальных таблиц
+CREATE TABLE Authors (
+    author_id SERIAL PRIMARY KEY,
+    author_name TEXT NOT NULL
+);
+
+CREATE TABLE Books (
+    book_id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    published_year INTEGER,
+    author_id INTEGER,
+    FOREIGN KEY (author_id) REFERENCES Authors(author_id)
+);
+
+-- Изменение таблицы Books
+ALTER TABLE Books ADD COLUMN genre VARCHAR(100);
+ALTER TABLE Books ADD CONSTRAINT check_published_year CHECK (published_year <= 2025);
+
+-- Рефакторинг схемы для поддержки соавторства
+ALTER TABLE Books DROP COLUMN author_id;
+
+CREATE TABLE Book_Authors (
+    book_id INTEGER,
+    author_id INTEGER,
+    PRIMARY KEY (book_id, author_id),
+    FOREIGN KEY (book_id) REFERENCES Books(book_id),
+    FOREIGN KEY (author_id) REFERENCES Authors(author_id)
+);
+
+-- Удаление таблицы
+CREATE TABLE Temp_Table (
+    temp_column TEXT
+);
+
+DROP TABLE Temp_Table;
