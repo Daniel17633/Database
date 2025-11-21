@@ -1,18 +1,18 @@
 DROP TABLE IF EXISTS Order_Product;
 DROP TABLE IF EXISTS OrderTable;
-DROP TABLE IF EXISTS Product;
-DROP TABLE IF EXISTS Customer;
+DROP TABLE IF EXISTS Product CASCADE;
+DROP TABLE IF EXISTS Customer CASCADE;
 
 -- "Клиент"
 CREATE TABLE Customer (
-    CustomerID INTEGER PRIMARY KEY AUTOINCREMENT,
+    CustomerID SERIAL PRIMARY KEY,
     Name TEXT NOT NULL,
     Email TEXT NOT NULL UNIQUE
 );
 
 -- "Заказ"
 CREATE TABLE OrderTable (
-    OrderID INTEGER PRIMARY KEY AUTOINCREMENT,
+    OrderID SERIAL PRIMARY KEY,
     OrderDate TEXT NOT NULL,  
     CustomerID INTEGER NOT NULL,
     FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID)
@@ -20,7 +20,7 @@ CREATE TABLE OrderTable (
 
 -- "Товар" 
 CREATE TABLE Product (
-    ProductID INTEGER PRIMARY KEY AUTOINCREMENT,
+    ProductID SERIALPRIMARY KEY,
     Name TEXT NOT NULL,
     Price REAL NOT NULL 
 );
@@ -34,4 +34,5 @@ CREATE TABLE Order_Product (
     FOREIGN KEY (OrderID) REFERENCES OrderTable(OrderID),
     FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
 );
+
 
