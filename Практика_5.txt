@@ -1,4 +1,4 @@
--- Создание начальных таблиц
+-- Начальные
 CREATE TABLE Authors (
     author_id SERIAL PRIMARY KEY,
     author_name TEXT NOT NULL
@@ -16,7 +16,7 @@ CREATE TABLE Books (
 ALTER TABLE Books ADD COLUMN genre VARCHAR(100);
 ALTER TABLE Books ADD CONSTRAINT check_published_year CHECK (published_year <= 2025);
 
--- Рефакторинг схемы для поддержки соавторства
+-- Для соавторства
 ALTER TABLE Books DROP COLUMN author_id;
 
 CREATE TABLE Book_Authors (
@@ -34,3 +34,4 @@ CREATE TABLE Temp_Table (
 
 
 DROP TABLE Temp_Table;
+
