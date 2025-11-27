@@ -1,0 +1,32 @@
+--Задание 1: Вывести полный список студентов
+SELECT * FROM Students;
+
+--Задание 2: Вывести названия и "стоимость" курсов
+SELECT name, credits FROM Courses;
+
+--Задание 3: Найти студентов, поступивших в 2021 году
+SELECT * FROM Students WHERE enrollment_year = 2021;
+
+--Задание 4: Найти курс с "стоимостью" больше 4 кредитов
+SELECT * FROM Courses WHERE credits > 4;
+
+--Задание 5: Найти студента по его email
+SELECT * FROM Students WHERE email = 'elena.kuznetsova@newmail.com';
+
+--Задание 5: Найти студента по его email
+SELECT * FROM Students WHERE email = 'elena.kuznetsova@newmail.com';
+
+--Задание 6: Найти всех студентов с именем "Дмитрий"
+SELECT * FROM Students WHERE name LIKE 'Дмитрий%';
+
+--Задание 7: Найти все зачисления без оценки
+SELECT * FROM Enrollments WHERE grade IS NULL;
+
+--Задание 8: Отсортировать курсы по названию
+SELECT * FROM Courses ORDER BY name;
+
+--Задание 9: Показать студентов в порядке зачисления
+SELECT * FROM Students ORDER BY enrollment_year ASC, name ASC;
+
+--Задание 10: Найти двух "новейших" студентов
+SELECT * FROM Students ORDER BY enrollment_year DESC, name DESC LIMIT 2;
