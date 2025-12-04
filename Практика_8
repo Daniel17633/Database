@@ -1,0 +1,116 @@
+1)
+SELECT Customers.full_name, Orders.order_date -- имя и дата из таблицы customers
+FROM Customers 
+INNER JOIN Orders ON Customers.customer_id = Orders.customer_id; -- соединяем
+
+2)
+SELECT Customers.full_name -- имя из cus
+FROM Customers
+LEFT JOIN Orders ON Customers.customer_id = Orders.customer_id -- левое соединение с orders по c.id, включая всех покупателей
+WHERE Orders.order_id IS NULL; -- а тут тех у кого пусто
+
+3)
+SELECT Products.product_name, Order_Items.quantity, Order_Items.price_per_unit -- все эти данные из ордерс
+FROM Orders
+INNER JOIN Order_Items ON Orders.order_id = Order_Items.order_id -- Соединяем с Order_Items по order_id
+INNER JOIN Products ON Order_Items.product_id = Products.product_id -- Соединяем с Products по product_id
+WHERE Orders.order_id = 1;
+
+4)
+SELECT Customers.full_name
+FROM Customers
+WHERE Customers.customer_id IN ( -- -- Фильтр по customer_id
+    SELECT Orders.customer_id
+    FROM Orders
+    INNER JOIN Order_Items ON Orders.order_id = Order_Items.order_id
+    INNER JOIN Products ON Order_Items.product_id = Products.product_id
+    WHERE Products.product_name = 'Смартфон' -- любой товар
+);
+
+5)
+SELECT Products.product_name, Products.price
+FROM Products
+WHERE Products.price > (SELECT AVG(Products.price) FROM Products); -- AVG - средняя, сравнить
+
+6)
+SELECT Orders.order_id, Orders.order_date
+FROM Orders
+WHERE EXISTS ( -- существует?
+    SELECT 1 -- константа 1 (не важно, главное проверить)
+    FROM Order_Items
+    INNER JOIN Products ON Order_Items.product_id = Products.product_id
+    WHERE Order_Items.order_id = Orders.order_id AND Products.price > 100000 -- -- Корреляция: order_id совпадает, и цена > 100000
+);
+
+7)
+1)))))
+SELECT Customers.full_name
+FROM Customers
+WHERE Customers.customer_id NOT IN (  -- Фильтр по customer_id, которых нет в подзапросе
+    SELECT Orders.customer_id
+    FROM Orders
+    INNER JOIN Order_Items ON Orders.order_id = Order_Items.order_id
+    INNER JOIN Products ON Order_Items.product_id = Products.product_id
+    WHERE Products.product_name = 'Ноутбук' -- товар
+);
+
+2)))))
+SELECT Customers.full_name 
+FROM Customers 
+LEFT JOIN ( -- left с подзапросом
+    SELECT DISTINCT Orders.customer_id -- уникальные customer_id из Orders
+    FROM Orders
+    INNER JOIN Order_Items ON Orders.order_id = Order_Items.order_id 
+    INNER JOIN Products ON Order_Items.product_id = Products.product_id 
+    WHERE Products.product_name = 'Ноутбук' -- Фильтр 'Ноутбук'
+) AS sub ON Customers.customer_id = sub.customer_id -- Соединение по customer_id, (псевдоним) для результата подзапроса. "AS", чтобы можно было называть это таблицу как sub
+WHERE sub.customer_id IS NULL; -- Фильтр тех, у кого нет совпадений
+
+8)
+SELECT Products.product_name
+FROM Products
+LEFT JOIN Order_Items ON Products.product_id = Order_Items.product_id
+WHERE Order_Items.product_id IS NULL; -- фильтр(не были заказаны)
+
+9)
+SELECT Customers.full_name, Products.product_name, Order_Items.quantity
+FROM Customers
+FULL OUTER JOIN Orders ON Customers.customer_id = Orders.customer_id
+FULL OUTER JOIN Order_Items ON Orders.order_id = Order_Items.order_id
+FULL OUTER JOIN Products ON Order_Items.product_id = Products.product_id; -- полные внешние соеденения через join
+
+10)
+1)))))
+SELECT DISTINCT Customers.full_name -- уникальные имена покупателей
+FROM Customers 
+INNER JOIN Orders ON Customers.customer_id = Orders.customer_id
+INNER JOIN Order_Items ON Orders.order_id = Order_Items.order_id 
+INNER JOIN Products ON Order_Items.product_id = Products.product_id 
+WHERE Products.price = (SELECT MAX(Products.price) FROM Products); -- Фильтр по товарам с максимальной ценой
+
+2)))))
+SELECT Customers.full_name -- имя покупателя
+FROM Customers
+WHERE Customers.customer_id IN ( -- Фильтрпо customer_id, которые есть в подзапросе
+    SELECT Orders.customer_id 
+    FROM Orders
+    WHERE Orders.order_id IN ( -- Фильтр по order_id, которые есть в подзапросе
+        SELECT Order_Items.order_id
+        FROM Order_Items 
+        WHERE Order_Items.product_id IN ( -- Фильтр по product_id, которые есть в подзапросе
+            SELECT Products.product_id 
+            FROM Products 
+            WHERE Products.price = (SELECT MAX(Products.price) FROM Products) -- Фильтр по товарам с максимальной ценой
+        ) 
+    ) 
+); 
+
+11)
+SELECT Customers.full_name, Categories.category_name
+FROM Customers
+CROSS JOIN Categories; -- все варики
+
+12)
+SELECT new_customer.full_name AS new_customer, recommended_by.full_name AS recommended_by -- имя нового и рекомендатора
+FROM Customers AS new_customer -- алиас(new_customer)
+LEFT JOIN Customers AS recommended_by ON new_customer.recommended_by = recommended_by.customer_id; -- left по этому алиасу
