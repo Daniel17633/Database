@@ -1,0 +1,51 @@
+1)
+SELECT Categories.category_name, COUNT(Products.product_id) -- Выбор названия категории и подсчитываем количество товаров 
+FROM Categories 
+LEFT JOIN Products ON Categories.category_id = Products.category_id -- (включая категории без товаров)
+GROUP BY Categories.category_id, Categories.category_name; -- Группируем по ID и названию категории 
+
+2)
+SELECT SUM(Order_Items.quantity * Order_Items.price_per_unit) -- Вычисляем для всех позиций
+FROM Order_Items;
+
+3)
+SELECT Customers.full_name, COALESCE(COUNT(Orders.order_id), 0) -- (COALESCE заменяет NULL на 0), имя + подсчет заказов
+FROM Customers 
+LEFT JOIN Orders ON Customers.customer_id = Orders.customer_id -- (включая клиентов без заказов)
+GROUP BY Customers.customer_id, Customers.full_name; 
+
+4)
+SELECT AVG(order_total) -- СРЗНАЧ суммы заказов 
+FROM ( -- Из подзапроса, который вычисляет суммы заказов
+    SELECT Orders.order_id, SUM(Order_Items.quantity * Order_Items.price_per_unit) -- Выбираем ID заказа и сумму его позиций
+    FROM Orders
+    INNER JOIN Order_Items ON Orders.order_id = Order_Items.order_id 
+    GROUP BY Orders.order_id -- для подсчета суммы каждого
+);
+
+5)
+SELECT Orders.status, COUNT(Orders.order_id) AS status_count -- Выбираем статус и подсчитываем количество заказов в каждом статусе
+FROM Orders -- Из таблицы Orders
+GROUP BY Orders.status; -- Группируем по статусу заказа
+
+6)
+SELECT Categories.category_name, COUNT(Products.product_id) AS product_count -- Выбор названия категории и количество товаров
+FROM Categories
+LEFT JOIN Products ON Categories.category_id = Products.category_id
+GROUP BY Categories.category_id, Categories.category_name 
+HAVING COUNT(Products.product_id) > 1; -- Фильтр группы, где товаров больше 1
+
+7)
+SELECT Customers.full_name, COUNT(Orders.order_id) AS order_count -- Выбор имя клиента и количество заказов
+FROM Customers 
+INNER JOIN Orders ON Customers.customer_id = Orders.customer_id -- (только клиенты с заказами)
+GROUP BY Customers.customer_id, Customers.full_name 
+HAVING COUNT(Orders.order_id) > 1; -- Фильтруем группы, где заказов больше 1
+
+8)
+SELECT Products.product_name, SUM(Order_Items.quantity) AS total_sold -- название товара и сумму проданных 
+FROM Products 
+INNER JOIN Order_Items ON Products.product_id = Order_Items.product_id 
+GROUP BY Products.product_id, Products.product_name -- по ID и названию товара
+ORDER BY total_sold DESC -- убывание общего количества проданных --(Desc по алиасу)
+LIMIT 1; -- только 1(самый популярный)
