@@ -6,25 +6,25 @@ INNER JOIN Orders ON Customers.customer_id = Orders.customer_id; -- соедин
 2)
 SELECT Customers.full_name -- имя из cus
 FROM Customers
-LEFT JOIN Orders ON Customers.customer_id = Orders.customer_id -- левое соединение с orders по c.id, включая всех покупателей
+LEFT JOIN Orders ON Customers.customer_id = Orders.customer_id -- left с orders по c.id, и все покупатели тоже
 WHERE Orders.order_id IS NULL; -- а тут тех у кого пусто
 
 3)
 SELECT Products.product_name, Order_Items.quantity, Order_Items.price_per_unit -- все эти данные из ордерс
 FROM Orders
-INNER JOIN Order_Items ON Orders.order_id = Order_Items.order_id -- Соединяем с Order_Items по order_id
-INNER JOIN Products ON Order_Items.product_id = Products.product_id -- Соединяем с Products по product_id
+INNER JOIN Order_Items ON Orders.order_id = Order_Items.order_id
+INNER JOIN Products ON Order_Items.product_id = Products.product_id 
 WHERE Orders.order_id = 1;
 
 4)
 SELECT Customers.full_name
 FROM Customers
-WHERE Customers.customer_id IN ( -- -- Фильтр по customer_id
+WHERE Customers.customer_id IN ( -- Фильтр по customer_id
     SELECT Orders.customer_id
     FROM Orders
     INNER JOIN Order_Items ON Orders.order_id = Order_Items.order_id
     INNER JOIN Products ON Order_Items.product_id = Products.product_id
-    WHERE Products.product_name = 'Смартфон' -- любой товар
+    WHERE Products.product_name = 'Смартфон' 
 );
 
 5)
@@ -39,7 +39,7 @@ WHERE EXISTS ( -- существует?
     SELECT 1 -- константа 1 (не важно, главное проверить)
     FROM Order_Items
     INNER JOIN Products ON Order_Items.product_id = Products.product_id
-    WHERE Order_Items.order_id = Orders.order_id AND Products.price > 100000 -- -- Корреляция: order_id совпадает, и цена > 100000
+    WHERE Order_Items.order_id = Orders.order_id AND Products.price > 100000  -- Корреляция: order_id совпадает, и цена > 100000
 );
 
 7)
@@ -106,9 +106,9 @@ WHERE Customers.customer_id IN ( -- Фильтрпо customer_id, которые
 ); 
 
 11)
-SELECT Customers.full_name, Categories.category_name
+SELECT DISTINCT Customers.full_name, Products.category
 FROM Customers
-CROSS JOIN Categories; -- все варики
+CROSS JOIN Products;
 
 12)
 SELECT new_customer.full_name AS new_customer, recommended_by.full_name AS recommended_by -- имя нового и рекомендатора
