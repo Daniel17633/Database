@@ -54,6 +54,18 @@ WHERE Customers.customer_id NOT IN (  -- Фильтр по customer_id, кото
     WHERE Products.product_name = 'Ноутбук' -- товар
 );
 
+2)))))
+SELECT c.full_name
+FROM Customers c
+LEFT JOIN (
+    SELECT DISTINCT o.customer_id
+    FROM Orders o
+    JOIN Order_Items oi ON o.order_id = oi.order_id
+    JOIN Products p ON oi.product_id = p.product_id
+    WHERE p.product_name = 'Ноутбук'
+) laptop_orders ON c.customer_id = laptop_orders.customer_id
+WHERE laptop_orders.customer_id IS NULL;
+
 8)
 SELECT Products.product_name
 FROM Products
