@@ -77,15 +77,15 @@ INNER JOIN Products ON Order_Items.product_id = Products.product_id
 WHERE Products.price = (SELECT MAX(Products.price) FROM Products); -- Фильтр по товарам с максимальной ценой
 
 2)))))
-SELECT Customers.full_name -- имя покупателя
+SELECT Customers.full_name
 FROM Customers
-WHERE Customers.customer_id IN ( -- Фильтрпо customer_id, которые есть в подзапросе
+WHERE Customers.customer_id IN (
     SELECT Orders.customer_id 
     FROM Orders
-    WHERE Orders.order_id IN ( -- Фильтр по order_id, которые есть в подзапросе
+    WHERE Orders.order_id IN (
         SELECT Order_Items.order_id
         FROM Order_Items 
-        WHERE Order_Items.product_id IN ( -- Фильтр по product_id, которые есть в подзапросе
+        WHERE Order_Items.product_id IN ( 
             SELECT Products.product_id 
             FROM Products 
             WHERE Products.price = (SELECT MAX(Products.price) FROM Products) -- Фильтр по товарам с максимальной ценой
