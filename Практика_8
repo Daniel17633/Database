@@ -54,18 +54,6 @@ WHERE Customers.customer_id NOT IN (  -- Фильтр по customer_id, кото
     WHERE Products.product_name = 'Ноутбук' -- товар
 );
 
-2)))))
-SELECT Customers.full_name 
-FROM Customers 
-LEFT JOIN ( -- left с подзапросом
-    SELECT DISTINCT Orders.customer_id -- уникальные customer_id из Orders
-    FROM Orders
-    INNER JOIN Order_Items ON Orders.order_id = Order_Items.order_id 
-    INNER JOIN Products ON Order_Items.product_id = Products.product_id 
-    WHERE Products.product_name = 'Ноутбук' -- Фильтр 'Ноутбук'
-) AS sub ON Customers.customer_id = sub.customer_id -- Соединение по customer_id, (псевдоним) для результата подзапроса. "AS", чтобы можно было называть это таблицу как sub
-WHERE sub.customer_id IS NULL; -- Фильтр тех, у кого нет совпадений
-
 8)
 SELECT Products.product_name
 FROM Products
