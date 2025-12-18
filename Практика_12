@@ -1,0 +1,51 @@
+1)
+BEGIN;
+
+--quantity для 'Ноутбук' на 5 уменьшено
+UPDATE products SET quantity = quantity - 5 WHERE product_id = 1;
+
+-- Запись в order_history, отражающая изменение (quantity_changed = -5)
+INSERT INTO order_history (product_id, quantity_changed, notes) VALUES (1, -5, 'Продажа 5 ноутбуков');
+
+COMMIT; 
+
+SELECT * FROM products;
+SELECT * FROM order_history;
+
+2)
+BEGIN;
+
+-- Шаг 2: То самое недопустимое изменение
+UPDATE products SET quantity = quantity - 100 WHERE product_id = 2;
+-- Оошибка из-за CHECK (quantity >= 0), так как 50 - 100 = -50 < 0.
+
+-- Проверка
+SELECT * FROM products;
+SELECT * FROM order_history;
+
+3)
+BEGIN;
+
+-- Уменьшение quantity для ноутов на 2
+UPDATE products SET quantity = quantity - 2 WHERE product_id = 1;
+
+-- Если проверка не прошла
+ROLLBACK;
+
+SELECT * FROM products;
+
+4)
+BEGIN;
+
+-- Обновление без комита
+UPDATE products SET quantity = quantity - 10 WHERE product_id = 2;
+-- quantity смартфонов = 40 в этой сессии, изменения не видны другим.
+
+-- старое значение без сохранения в той сессии
+SELECT * FROM products WHERE product_id = 2;
+
+-- Теперь фиксация
+COMMIT;
+
+-- Теперь результат
+SELECT * FROM products WHERE product_id = 2;
