@@ -1,72 +1,69 @@
--- Создание базы данных для спортзала
-CREATE DATABASE IF NOT EXISTS GymDatabase;
-USE GymDatabase;
+-- Создание базы данных для больницы
+CREATE DATABASE HospitalDB;
 
--- Таблица 1: Trainers (Тренеры)
--- Связи: one-to-many с Members (personal_trainer_id), one-to-many с Classes (trainer_id)
-CREATE TABLE Trainers (
-    trainer_id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100) NOT NULL,
-    specialty VARCHAR(100)
+-- Использование базы данных
+USE HospitalDB;
+
+-- Таблица Patients (Пациенты)
+CREATE TABLE Patients (
+    PatientID INT PRIMARY KEY AUTO_INCREMENT,
+    FirstName VARCHAR(50) NOT NULL,
+    LastName VARCHAR(50) NOT NULL,
+    DateOfBirth DATE NOT NULL,
+    Diagnosis VARCHAR(255)
 );
 
--- Таблица 2: Members (Члены спортзала)
--- Связи: many-to-one с Trainers (personal_trainer_id)
-CREATE TABLE Members (
-    member_id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE,
-    phone VARCHAR(20),
-    personal_trainer_id INT,
-    FOREIGN KEY (personal_trainer_id) REFERENCES Trainers(trainer_id)
+-- Таблица Doctors (Врачи)
+CREATE TABLE Doctors (
+    DoctorID INT PRIMARY KEY AUTO_INCREMENT,
+    FirstName VARCHAR(50) NOT NULL,
+    LastName VARCHAR(50) NOT NULL,
+    Specialty VARCHAR(100) NOT NULL,
+    Department VARCHAR(100)
 );
 
--- Таблица 3: Classes (Занятия)
--- Связи: many-to-one с Trainers (trainer_id), many-to-many с Equipment (через Class_Equipment)
-CREATE TABLE Classes (
-    class_id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100) NOT NULL,
-    trainer_id INT,
-    schedule DATETIME,
-    FOREIGN KEY (trainer_id) REFERENCES Trainers(trainer_id)
+-- Таблица Rooms (Палаты)
+CREATE TABLE Rooms (
+    RoomID INT PRIMARY KEY AUTO_INCREMENT,
+    RoomNumber VARCHAR(10) NOT NULL,
+    RoomType VARCHAR(50) NOT NULL,
+    Capacity INT NOT NULL
 );
 
--- Таблица 4: Equipment (Оборудование)
--- Связи: many-to-many с Classes (через Class_Equipment)
-CREATE TABLE Equipment (
-    equipment_id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100) NOT NULL,
-    type VARCHAR(100)
+-- Таблица Appointments (Назначения)
+CREATE TABLE Appointments (
+    AppointmentID INT PRIMARY KEY AUTO_INCREMENT,
+    PatientID INT NOT NULL,
+    DoctorID INT NOT NULL,
+    AppointmentDate DATE NOT NULL,
+    AppointmentTime TIME NOT NULL,
+    FOREIGN KEY (PatientID) REFERENCES Patients(PatientID),
+    FOREIGN KEY (DoctorID) REFERENCES Doctors(DoctorID)
 );
 
--- Таблица 5: Class_Equipment (Связь занятий и оборудования)
--- Связи: many-to-many между Classes и Equipment
-CREATE TABLE Class_Equipment (
-    class_id INT,
-    equipment_id INT,
-    PRIMARY KEY (class_id, equipment_id),
-    FOREIGN KEY (class_id) REFERENCES Classes(class_id),
-    FOREIGN KEY (equipment_id) REFERENCES Equipment(equipment_id)
+-- Таблица Treatments (Лечения)
+CREATE TABLE Treatments (
+    TreatmentID INT PRIMARY KEY AUTO_INCREMENT,
+    AppointmentID INT NOT NULL,
+    Description TEXT NOT NULL,
+    Cost DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (AppointmentID) REFERENCES Appointments(AppointmentID)
 );
 
--- Примеры вставки данных (опционально, для тестирования)
-INSERT INTO Trainers (name, specialty) VALUES 
-('John Doe', 'Strength Training'),
-('Jane Smith', 'Yoga');
+-- Таблица Medications (Лекарства)
+CREATE TABLE Medications (
+    MedicationID INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(100) NOT NULL,
+    Dosage VARCHAR(50) NOT NULL,
+    Price DECIMAL(10, 2) NOT NULL
+);
 
-INSERT INTO Members (name, email, phone, personal_trainer_id) VALUES 
-('Alice Johnson', 'alice@example.com', '123-456-7890', 1),
-('Bob Brown', 'bob@example.com', '098-765-4321', 2);
-
-INSERT INTO Classes (name, trainer_id, schedule) VALUES 
-('Morning Yoga', 2, '2023-10-01 08:00:00'),
-('Weightlifting', 1, '2023-10-01 10:00:00');
-
-INSERT INTO Equipment (name, type) VALUES 
-('Treadmill', 'Cardio'),
-('Dumbbells', 'Strength'),
-('Yoga Mat', 'Flexibility');
-
-INSERT INTO Class_Equipment (class_id, equipment_id) VALUES 
-(1, 3),  -- Yoga class uses Yoga Mat
-(2, 2);  -- Weightlifting uses Dumbbells
+-- Таблица Prescriptions (Рецепты)
+CREATE TABLE Prescriptions (
+    PrescriptionID INT PRIMARY KEY AUTO_INCREMENT,
+    PatientID INT NOT NULL,
+    MedicationID INT NOT NULL,
+    Quantity INT NOT NULL,
+    FOREIGN KEY (PatientID) REFERENCES Patients(PatientID),
+    FOREIGN KEY (MedicationID) REFERENCES Medications(MedicationID)
+);
