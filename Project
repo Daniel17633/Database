@@ -6,7 +6,7 @@ USE HospitalDB;
 
 -- Таблица Patients (Пациенты)
 CREATE TABLE Patients (
-    PatientID INT PRIMARY KEY AUTO_INCREMENT,
+    PatientID INT PRIMARY KEY,
     FirstName VARCHAR(50) NOT NULL,
     LastName VARCHAR(50) NOT NULL,
     DateOfBirth DATE NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE Patients (
 
 -- Таблица Doctors (Врачи)
 CREATE TABLE Doctors (
-    DoctorID INT PRIMARY KEY AUTO_INCREMENT,
+    DoctorID INT PRIMARY KEY,
     FirstName VARCHAR(50) NOT NULL,
     LastName VARCHAR(50) NOT NULL,
     Specialty VARCHAR(100) NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE Doctors (
 
 -- Таблица Rooms (Палаты)
 CREATE TABLE Rooms (
-    RoomID INT PRIMARY KEY AUTO_INCREMENT,
+    RoomID INT PRIMARY KEY,
     RoomNumber VARCHAR(10) NOT NULL,
     RoomType VARCHAR(50) NOT NULL,
     Capacity INT NOT NULL
@@ -32,7 +32,7 @@ CREATE TABLE Rooms (
 
 -- Таблица Appointments (Назначения)
 CREATE TABLE Appointments (
-    AppointmentID INT PRIMARY KEY AUTO_INCREMENT,
+    AppointmentID INT PRIMARY KEY,
     PatientID INT NOT NULL,
     DoctorID INT NOT NULL,
     AppointmentDate DATE NOT NULL,
@@ -43,7 +43,7 @@ CREATE TABLE Appointments (
 
 -- Таблица Treatments (Лечения)
 CREATE TABLE Treatments (
-    TreatmentID INT PRIMARY KEY AUTO_INCREMENT,
+    TreatmentID INT PRIMARY KEY,
     AppointmentID INT NOT NULL,
     Description TEXT NOT NULL,
     Cost DECIMAL(10, 2) NOT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE Treatments (
 
 -- Таблица Medications (Лекарства)
 CREATE TABLE Medications (
-    MedicationID INT PRIMARY KEY AUTO_INCREMENT,
+    MedicationID INT PRIMARY KEY,
     Name VARCHAR(100) NOT NULL,
     Dosage VARCHAR(50) NOT NULL,
     Price DECIMAL(10, 2) NOT NULL
@@ -60,7 +60,7 @@ CREATE TABLE Medications (
 
 -- Таблица Prescriptions (Рецепты)
 CREATE TABLE Prescriptions (
-    PrescriptionID INT PRIMARY KEY AUTO_INCREMENT,
+    PrescriptionID INT PRIMARY KEY,
     PatientID INT NOT NULL,
     MedicationID INT NOT NULL,
     Quantity INT NOT NULL,
