@@ -1,75 +1,208 @@
--- Создание базы данных для больницы
-CREATE DATABASE HospitalDB;
-
--- Использование базы данных
-USE HospitalDB;
-
--- Таблица Patients (Пациенты)
-CREATE TABLE Patients (
-    PatientID INT PRIMARY KEY,
-    FirstName VARCHAR(50) NOT NULL,
-    LastName VARCHAR(50) NOT NULL,
-    DateOfBirth DATE NOT NULL,
-    Diagnosis VARCHAR(255),
-    RoomID INT,  -- Добавлено для связи с Rooms (размещение пациента)
-    FOREIGN KEY (RoomID) REFERENCES Rooms(RoomID)
+-- 1. Сущность: Restaurants (Рестораны)
+CREATE TABLE Restaurants (
+    restaurant_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    address VARCHAR(255),
+    phone VARCHAR(20),
+    email VARCHAR(100)
 );
 
--- Таблица Doctors (Врачи)
-CREATE TABLE Doctors (
-    DoctorID INT PRIMARY KEY,
-    FirstName VARCHAR(50) NOT NULL,
-    LastName VARCHAR(50) NOT NULL,
-    Specialty VARCHAR(100) NOT NULL,
-    Department VARCHAR(100),
-    RoomID INT, 
-    FOREIGN KEY (RoomID) REFERENCES Rooms(RoomID)
+-- 2. Сущность: Customers (Клиенты)
+CREATE TABLE Customers (
+    customer_id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    phone VARCHAR(20),
+    address VARCHAR(255)
 );
 
--- Таблица Rooms (Палаты)
-CREATE TABLE Rooms (
-    RoomID INT PRIMARY KEY,
-    RoomNumber VARCHAR(10) NOT NULL,
-    RoomType VARCHAR(50) NOT NULL,
-    Capacity INT NOT NULL
+-- 3. Сущность: Suppliers (Поставщики)
+CREATE TABLE Suppliers (
+    supplier_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    contact_email VARCHAR(100),
+    phone VARCHAR(20)
 );
 
--- Таблица Appointments (Назначения)
-CREATE TABLE Appointments (
-    AppointmentID INT PRIMARY KEY,
-    PatientID INT NOT NULL,
-    DoctorID INT NOT NULL,
-    RoomID INT, 
-    AppointmentDate DATE NOT NULL,
-    AppointmentTime TIME NOT NULL,
-    FOREIGN KEY (PatientID) REFERENCES Patients(PatientID),
-    FOREIGN KEY (DoctorID) REFERENCES Doctors(DoctorID),
-    FOREIGN KEY (RoomID) REFERENCES Rooms(RoomID)
+-- 4. Сущность: Ingredients (Ингредиенты)
+CREATE TABLE Ingredients (
+    ingredient_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    unit VARCHAR(20),  
+    supplier_id INT,
+    FOREIGN KEY (supplier_id) REFERENCES Suppliers(supplier_id) 
 );
 
--- Таблица Treatments (Лечения)
-CREATE TABLE Treatments (
-    TreatmentID INT PRIMARY KEY,
-    AppointmentID INT NOT NULL,
-    Description TEXT NOT NULL,
-    Cost DECIMAL(10, 2) NOT NULL,
-    FOREIGN KEY (AppointmentID) REFERENCES Appointments(AppointmentID)
+-- 5. Сущность: Chefs (Повара)
+CREATE TABLE Chefs (
+    chef_id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    specialization VARCHAR(100),
+    restaurant_id INT,
+    FOREIGN KEY (restaurant_id) REFERENCES Restaurants(restaurant_id) 
 );
 
--- Таблица Medications (Лекарства)
-CREATE TABLE Medications (
-    MedicationID INT PRIMARY KEY,
-    Name VARCHAR(100) NOT NULL,
-    Dosage VARCHAR(50) NOT NULL,
-    Price DECIMAL(10, 2) NOT NULL
+-- 6. Сущность: Dishes (Блюда)
+CREATE TABLE Dishes (
+    dish_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    price DECIMAL(10, 2) NOT NULL,
+    restaurant_id INT,
+    FOREIGN KEY (restaurant_id) REFERENCES Restaurants(restaurant_id) 
 );
 
--- Таблица Prescriptions (Рецепты)
-CREATE TABLE Prescriptions (
-    PrescriptionID INT PRIMARY KEY,
-    PatientID INT NOT NULL,
-    MedicationID INT NOT NULL,
-    Quantity INT NOT NULL,
-    FOREIGN KEY (PatientID) REFERENCES Patients(PatientID),
-    FOREIGN KEY (MedicationID) REFERENCES Medications(MedicationID)
+-- 7. Сущность: Tables (Столики)
+CREATE TABLE Tables (
+    table_id INT AUTO_INCREMENT PRIMARY KEY,
+    table_number INT NOT NULL,
+    capacity INT NOT NULL,  -- вместимость
+    restaurant_id INT,
+    FOREIGN KEY (restaurant_id) REFERENCES Restaurants(restaurant_id)
 );
+
+-- 8. Сущность: Orders (Заказы)
+CREATE TABLE Orders (
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT,
+    restaurant_id INT,
+    table_id INT,  -- nullable для самовывоза
+    order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    total_price DECIMAL(10, 2),
+    status ENUM('pending', 'preparing', 'served', 'cancelled') DEFAULT 'pending',
+    order_type ENUM('dine-in', 'takeaway') DEFAULT 'dine-in',
+    FOREIGN KEY (customer_id) REFERENCES Customers(customer_id) ,
+    FOREIGN KEY (restaurant_id) REFERENCES Restaurants(restaurant_id) 
+    FOREIGN KEY (table_id) REFERENCES Tables(table_id) 
+);
+
+-- 9. Сущность: Reviews (Отзывы)
+CREATE TABLE Reviews (
+    review_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT,
+    order_id INT UNIQUE,  -- one-to-one с Orders
+    rating INT CHECK (rating BETWEEN 1 AND 5),
+    comment TEXT,
+    date_posted DATE DEFAULT CURRENT_DATE,
+    FOREIGN KEY (customer_id) REFERENCES Customers(customer_id) ON DELETE CASCADE,
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id) ON DELETE CASCADE
+);
+
+-- Промежуточная таблица для many-to-many: Orders ↔ Dishes (OrderItems)
+CREATE TABLE OrderItems (
+    order_item_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT,
+    dish_id INT,
+    quantity INT NOT NULL DEFAULT 1,
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id) ON DELETE CASCADE,
+    FOREIGN KEY (dish_id) REFERENCES Dishes(dish_id) ON DELETE CASCADE,
+    UNIQUE (order_id, dish_id)  -- предотвращает дубликаты в одном заказе
+);
+
+-- Промежуточная таблица для many-to-many: Dishes ↔ Ingredients (DishIngredients)
+CREATE TABLE DishIngredients (
+    dish_ingredient_id INT AUTO_INCREMENT PRIMARY KEY,
+    dish_id INT,
+    ingredient_id INT,
+    quantity DECIMAL(10, 2),  -- колво ингредиента в блюде
+    FOREIGN KEY (dish_id) REFERENCES Dishes(dish_id) ON DELETE CASCADE,
+    FOREIGN KEY (ingredient_id) REFERENCES Ingredients(ingredient_id) ON DELETE CASCADE,
+    UNIQUE (dish_id, ingredient_id)  -- предотвращает дубликаты
+);
+
+______________________________________________________________________________________________________________
+
+-- Для mermaid
+
+erDiagram
+    Restaurants {
+        int restaurant_id PK
+        varchar name
+        varchar address
+        varchar phone
+        varchar email
+    }
+    Customers {
+        int customer_id PK
+        varchar first_name
+        varchar last_name
+        varchar email
+        varchar phone
+        varchar address
+    }
+    Suppliers {
+        int supplier_id PK
+        varchar name
+        varchar contact_email
+        varchar phone
+    }
+    Ingredients {
+        int ingredient_id PK
+        varchar name
+        varchar unit
+        int supplier_id FK
+    }
+    Chefs {
+        int chef_id PK
+        varchar first_name
+        varchar last_name
+        varchar specialization
+        int restaurant_id FK
+    }
+    Dishes {
+        int dish_id PK
+        varchar name
+        text description
+        decimal price
+        int restaurant_id FK
+    }
+    Tables {
+        int table_id PK
+        int table_number
+        int capacity
+        int restaurant_id FK
+    }
+    Orders {
+        int order_id PK
+        int customer_id FK
+        int restaurant_id FK
+        int table_id FK
+        datetime order_date
+        decimal total_price
+        enum status
+        enum order_type
+    }
+    Reviews {
+        int review_id PK
+        int customer_id FK
+        int order_id FK
+        int rating
+        text comment
+        date date_posted
+    }
+    OrderItems {
+        int order_item_id PK
+        int order_id FK
+        int dish_id FK
+        int quantity
+    }
+    DishIngredients {
+        int dish_ingredient_id PK
+        int dish_id FK
+        int ingredient_id FK
+        decimal quantity
+    }
+    
+    Restaurants ||--o{ Orders : "Один ресторан - много заказов (1:N)"
+    Restaurants ||--o{ Dishes : "Один ресторан - много блюд (1:N)"
+    Restaurants ||--o{ Chefs : "Один ресторан - много поваров (1:N)"
+    Restaurants ||--o{ Tables : "Один ресторан - много столиков (1:N)"
+    Customers ||--o{ Orders : "Один клиент - много заказов (1:N)"
+    Customers ||--o{ Reviews : "Один клиент - много отзывов (1:N)"
+    Suppliers ||--o{ Ingredients : "Один поставщик - много ингридиентов (1:N)"
+    Tables ||--o{ Orders : "Один столик - много заказов (1:N)"
+    Orders ||--|| Reviews : "Один заказ - один отзыв (1:1)"
+    Orders }o--o{ Dishes : "Много блюд во многих заказах (N:N)"
+    Dishes }o--o{ Ingredients : "Много ингридиентов во многих блюдах (N:N)"
