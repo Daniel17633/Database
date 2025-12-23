@@ -1,7 +1,3 @@
--- Создание базы данных (опционально, в SQLite это не обязательно)
--- CREATE DATABASE restaurant_db;
--- USE restaurant_db;  -- В SQLite нет USE, база создается автоматически
-
 -- Таблица Restaurants
 CREATE TABLE Restaurants (
     restaurant_id INTEGER PRIMARY KEY,
